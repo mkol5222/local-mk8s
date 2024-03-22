@@ -364,6 +364,10 @@ export MYID=mko # use your own!
 dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks
 ```
 
+### CoreDNS custom forwarders
+https://devops.cisel.ch/customizing-coredns-forwarders-on-kubernetes
+
+
 ### Replace general Ingress with CloudGuard WAF (AppSec) Ingress
 
 ```shell
