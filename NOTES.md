@@ -1,5 +1,7 @@
-```shell
+# Publishing web apps with effortless DNS and TLS - local MicroK8s cluster
 
+Launch first cluster node with cloud-init
+```shell
 multipass launch -v -n node1 --cloud-init cloud-init.yml -m 4G -d 10G -c 4
 
 multipass shell node1
