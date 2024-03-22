@@ -38,8 +38,9 @@ microk8s enable metallb:172.18.160.128-172.18.160.199
 
 # try it out
 
-# make web server
+# make web server with 3 replicas
 k create deploy web --image nginx --replicas 3
+k get pods -l app=web -o wide
 
 # expose it externally on IP provided by MetalLB
 k expose deploy web --port 80 --target-port 80 --type LoadBalancer
