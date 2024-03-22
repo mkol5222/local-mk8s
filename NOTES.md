@@ -262,7 +262,7 @@ dig +short @1.1.1.1 web-${MYID}.cloudguard.rocks
 # create ingress resource for web service
 # will publish on https://www-${MYID}.cloudguard.rocks
 
-cat << 'EOF' |  sed "s/www.cloudguard.rocks/www-$MYID.cloudguard.rocks/" | k apply -f -
+cat << EOF |  sed "s/www.cloudguard.rocks/www-$MYID.cloudguard.rocks/" | k apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -301,6 +301,10 @@ k get certificate
 
 # test it out
 echo "Visit https://www-${MYID}.cloudguard.rocks from host machine browser"
+
+# CLI test
+sudo resolvectl flush-caches
+curl -vvv https://www-${MYID}.cloudguard.rocks 2>&1 
 
 # review process of TLS cert creation (DNS-01 challenge)
 k logs -f -n cert-manager deploy/cert-manager
