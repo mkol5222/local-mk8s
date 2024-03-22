@@ -54,6 +54,13 @@ k get svc web
 
 WEBIP=$(k get svc web -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "Access http://$WEBIP on host machine browser"
+
+# mark each pod with hostname
+for P in $(k get po -l app=web -o name); do k exec -it $P -- find /usr/share -name index.html; done
+for P in $(k get po -l app=web -o name); do k exec -it $P -- bash -c 'echo $HOSTNAME | tee /usr/share/nginx/html/index.html'; done
+
+# visit through svc (lb) - see how many times per each pod
+for I in $(seq 1 50); do curl -s http://$WEBIP; done | sort | uniq -c | sort -nr
 ```
 
 ### Install K9s using Arkade (ark)
