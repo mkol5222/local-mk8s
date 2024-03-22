@@ -1,0 +1,66 @@
+#cloud-config
+runcmd:
+ - |
+   # install and start microk8s
+   snap install microk8s --classic
+   microk8s start
+   microk8s status  
+   microk8s enable dns ingress cert-manager
+   # install Arkade package manager
+   # When running as a startup script (cloud-init), the HOME variable is not always set.
+   # As it is required for arkade to properly download tools, 
+   # set the variable to /usr/local so arkade will download binaries to /usr/local/.arkade
+   if [ -z "${HOME}" ]; then
+     export HOME=/usr/local
+   fi
+   curl -sLS https://get.arkade.dev | sh   
+        
+apt_update: true
+apt_upgrade: true
+package_update: true
+package_upgrade: true
+package_reboot_if_required: false
+packages:
+  - dnsutils
+  - jq
+  - curl
+  - git
+  - vim
+
+system_info:
+  default_user:
+    groups: [microk8s]
+
+write_files:
+  - path: /etc/bash.bashrc
+    content: |
+      alias kubectl='microk8s kubectl'
+      alias helm='microk8s helm'
+      alias k='kubectl'
+      alias h='helm'  
+    append: true
+  - path: /usr/local/bin/verify-dns
+    content: |
+      #!/bin/bash
+      # Verify DNS resolution
+      if [ -z "$APPSEC_HOSTNAME" ]; then
+          echo "APPSEC_HOSTNAME is not defined. Please define it first..."
+          exit 1
+      fi
+      sudo resolvectl flush-caches 
+      VMPUBLICIP=$(curl -s ip.iol.cz/ip/)
+      DNSIP=$(dig +short $APPSEC_HOSTNAME)
+      echo "Checking that DNS recort for $APPSEC_HOSTNAME points to $VMPUBLICIP"
+      if [ "$VMPUBLICIP" == "$DNSIP" ]; then
+          echo -e "\033[32m SUCCESS: DNS points to this VM."
+      else
+          if [ -z "$DNSIP" ]; then
+              echo -e "\033[31m DNS record not defined. Create: $APPSEC_HOSTNAME IN A $VMPUBLICIP"
+          else
+              echo -e "\033[31m DNS record points to ***wrong*** IP: $DNSIP, but it should be $VMPUBLICIP"
+          fi
+          echo -e "\033[31m FAILED: please setup DNS record for $APPSEC_HOSTNAME"
+      fi 
+    permissions: '0755'
+
+final_message: "The system is finally up, after $UPTIME seconds"
