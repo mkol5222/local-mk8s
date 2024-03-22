@@ -367,6 +367,21 @@ dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks
 ### CoreDNS custom forwarders
 https://devops.cisel.ch/customizing-coredns-forwarders-on-kubernetes
 
+### Expose existing service by patching to type LoadBalancer
+
+```shell
+ark install argocd
+ark info argocd
+kubectl patch svc argocd-server  -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+k get svc -n argocd
+# now it has external IP...
+
+# Get the password
+PASS=$(kubectl get secret argocd-initial-admin-secret \
+  -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d)
+echo $PASS
+```
 
 ### Replace general Ingress with CloudGuard WAF (AppSec) Ingress
 
