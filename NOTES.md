@@ -6,8 +6,8 @@ We are using [Multipass](https://multipass.run/) to launch Ubuntu LTS VMs on Win
 ### Launch first cluster node with cloud-init
 
 ```shell
-# create VM
-multipass launch -v -n node1 --cloud-init cloud-init.yml -m 4G -d 10G -c 4
+# create VM - review RAM size
+multipass launch -v -n node1 --cloud-init cloud-init.yml -m 6G -d 10G -c 4
 # enter VM command line
 multipass shell node1
 ```

@@ -60,8 +60,8 @@ watch -d dig +short @1.1.1.1 mon-$MYID.cloudguard.rocks
 echo "Visit https://mon-${MYID}.cloudguard.rocks"
 
 # CLI test
-curl -vvv https://mon-${MYID}.cloudguard 2>&1 
-curl -vvv https://mon-${MYID}.cloudguard 2>&1 | grep CN
+curl -vvv https://mon-${MYID}.cloudguard.rocks 2>&1 
+curl -vvv https://mon-${MYID}.cloudguard.rocks 2>&1 | grep CN
 
 # troubleshooting
 k logs -f  -n cert-manager deploy/cert-manager

