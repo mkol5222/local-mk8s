@@ -54,6 +54,13 @@ k get svc web
 
 WEBIP=$(k get svc web -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "Access http://$WEBIP on host machine browser"
+
+# mark each pod with hostname
+for P in $(k get po -l app=web -o name); do k exec -it $P -- find /usr/share -name index.html; done
+for P in $(k get po -l app=web -o name); do k exec -it $P -- bash -c 'echo $HOSTNAME | tee /usr/share/nginx/html/index.html'; done
+
+# visit through svc (lb) - see how many times per each pod
+for I in $(seq 1 50); do curl -s http://$WEBIP; done | sort | uniq -c | sort -nr
 ```
 
 ### Install K9s using Arkade (ark)
@@ -358,6 +365,25 @@ k get svc -n ingress
 # pointed to by DNS
 export MYID=mko # use your own!
 dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks
+```
+
+### CoreDNS custom forwarders
+https://devops.cisel.ch/customizing-coredns-forwarders-on-kubernetes
+
+### Expose existing service by patching to type LoadBalancer
+
+```shell
+ark install argocd
+ark info argocd
+kubectl patch svc argocd-server  -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+k get svc -n argocd
+# now it has external IP...
+
+# Get the password
+PASS=$(kubectl get secret argocd-initial-admin-secret \
+  -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d)
+echo $PASS
 ```
 
 ### Replace general Ingress with CloudGuard WAF (AppSec) Ingress
