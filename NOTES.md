@@ -76,7 +76,9 @@ k9s
 
 ### External DNS setup
 
-Lets use External-DNS to create DNS records for our web services automatically.
+Lets use [External-DNS](https://github.com/kubernetes-sigs/external-dns) to create DNS records for our web services automatically.
+
+Note: `--txt-owner-id` 
 
 ```shell
 # create namespace for external-dns
@@ -147,6 +149,7 @@ spec:
         - --source=ingress 
         - --domain-filter=cloudguard.rocks 
         - --provider=cloudflare
+        - --txt-owner-id=mko.cloudguard-rocks # use your own!
         env:
         - name: CF_API_TOKEN
           valueFrom:
