@@ -198,6 +198,10 @@ dig +short @1.1.1.1 web-${MYID}.cloudguard.rocks
 # now service is reacheble also by DNS name (not only IP)
 echo "Visit http://web-${MYID}.cloudguard.rocks from host machine browser"
 
+# CLI test
+curl -vvv http://web-${MYID}.cloudguard.rocks 2>&1 
+curl -vvv http://web-${MYID}.cloudguard.rocks 2>&1 | grep 'web server is'
+
 # summary we have DNS record for web service, 
 # but we would love to have also HTTPS access with valid certificate
 ```
@@ -305,9 +309,11 @@ k describe ing/web
 
 # was DNS A record created?
 dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks
+watch -d "dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks"
 
 # was certificate provided? ready state?
 k get certificate
+watch -d kubectl get certificate
 
 # test it out
 echo "Visit https://www-${MYID}.cloudguard.rocks from host machine browser"
@@ -315,9 +321,13 @@ echo "Visit https://www-${MYID}.cloudguard.rocks from host machine browser"
 # CLI test
 sudo resolvectl flush-caches
 curl -vvv https://www-${MYID}.cloudguard.rocks 2>&1 
+# see cert subject and issuer
+curl -vvv https://www-${MYID}.cloudguard.rocks 2>&1 | grep CN
 
 # review process of TLS cert creation (DNS-01 challenge)
 k logs -f -n cert-manager deploy/cert-manager
+# and DNS updates here
+k logs -f -n external-dns deploy/external-dns
 ```
 
 ### Second cluster node
@@ -388,9 +398,8 @@ echo $PASS
 
 ### Replace general Ingress with CloudGuard WAF (AppSec) Ingress
 
-```shell
-# work in progress...
-```
+see [more/01-APPSEC.md](more/01-APPSEC.md)
+
 
 ### Cleanup
 
