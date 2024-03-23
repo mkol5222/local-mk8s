@@ -61,7 +61,7 @@ dig +short @1.1.1.1 keycloak-$MYID.cloudguard.rocks
 echo dig +short @1.1.1.1 keycloak-$MYID.cloudguard.rocks
 watch -d dig +short @1.1.1.1 keycloak-$MYID.cloudguard.rocks
 
-# visit Grafana at https://keycloak-${MYID}.cloudguard.rocks
+# visit Keycloak at https://keycloak-${MYID}.cloudguard.rocks
 echo "Visit https://keycloak-${MYID}.cloudguard.rocks"
 
 # CLI test
