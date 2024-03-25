@@ -82,7 +82,11 @@ k get nodes -o json | jq -r '.items[0].status.addresses[0].address' # node IP
 k get svc web -o json | jq -r '.spec.ports[0].nodePort' # high port of svc/web
 echo curl -vvv "http://$(k get nodes -o json | jq -r '.items[0].status.addresses[0].address'):$(k get svc web -o json | jq -r '.spec.ports[0].nodePort')"
 curl -vvv "http://$(k get nodes -o json | jq -r '.items[0].status.addresses[0].address'):$(k get svc web -o json | jq -r '.spec.ports[0].nodePort')"
+```
 
+![type=NodePort](./img/nodeport.png)
+
+```shell
 # lets expose service on LoadBalancer (MetalLB IP address)
 kubectl patch svc web -p '{"spec": {"type": "LoadBalancer"}}'
 
@@ -94,7 +98,12 @@ k get svc web
 
 WEBIP=$(k get svc web -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "Access http://$WEBIP on host machine browser"
+```
 
+![type=LoadBalancer](./img/loadbalancer.png)
+
+
+```shell
 # mark each pod with hostname
 for P in $(k get po -l app=web -o name); do k exec -it $P -- find /usr/share -name index.html; done
 for P in $(k get po -l app=web -o name); do k exec -it $P -- bash -c 'echo $HOSTNAME | tee /usr/share/nginx/html/index.html'; done
@@ -245,6 +254,9 @@ curl -vvv http://web-${MYID}.cloudguard.rocks 2>&1 | grep 'web server is'
 # summary we have DNS record for web service, 
 # but we would love to have also HTTPS access with valid certificate
 ```
+
+
+![svc external DNS](./img/svc-externaldns.png)
 
 ### Cert manager cluster issuer with DNS-01 validator
 
