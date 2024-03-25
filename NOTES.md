@@ -310,6 +310,12 @@ ark get helm
 echo 'export PATH=$PATH:/home/ubuntu/.arkade/bin' >> ~/.bashrc
 source ~/.bashrc
 
+# save kube config!
+sudo mkdir -p ~/.kube;
+sudo microk8s config > ~/.kube/config
+chmod o= ~/.kube/config
+chmod g= ~/.kube/config
+
 # install ingress-nginx using Arkade tool into ingress namespace
 # notice that we are using "public" ingress class
 ark install ingress-nginx --namespace ingress --set controller.ingressClassResource.name=public
