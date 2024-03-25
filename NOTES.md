@@ -43,7 +43,12 @@ multipass ls
 # make web server with 3 replicas
 k create deploy web --image nginx --replicas 3
 k get pods -l app=web -o wide
+```
 
+![k create deploy](./img/k-create-deploy.png)
+
+
+```shell
 # expose it externally on IP provided by MetalLB
 k expose deploy web --port 80 --target-port 80 --type ClusterIP
 
@@ -60,7 +65,11 @@ k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://$WEBCIP
 # and it even has DNS name
 k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://web.default.svc.cluster.local
 k run -it --rm --restart=Never --image=nginx client --  curl -vvv web.default.svc.cluster.local 2>&1 | grep 'Connected to'
+```
 
+![type=ClusterIP](./img/clusterip.png)
+
+```shell
 # lets expose service on Node port - PORT(S) 30587 -> 80/TCP
 kubectl patch svc web -p '{"spec": {"type": "NodePort"}}'
 # we have hot NodePort now
