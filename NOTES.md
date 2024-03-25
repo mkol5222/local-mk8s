@@ -330,6 +330,9 @@ k get svc web
 ![Ingress](./img/ingress.png)
 
 ```shell
+# verify existing web service that we are about to publish
+k get svc web
+
 # unique id - e.g. mko for Martin Koldovsky to assure uniqueness of resources like DNS records
 export MYID=mko # use your own!
 # direct service access was:
