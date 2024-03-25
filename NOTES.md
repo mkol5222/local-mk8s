@@ -35,6 +35,8 @@ k get pods -o wide -A
 
 # MetalLB setup - external IP used to reach web apps (svc type LoadBalancer external IP)
 microk8s enable metallb:172.18.160.128-172.18.160.199
+# existing machines and their IPs
+multipass ls
 
 # try it out
 
@@ -43,14 +45,43 @@ k create deploy web --image nginx --replicas 3
 k get pods -l app=web -o wide
 
 # expose it externally on IP provided by MetalLB
-k expose deploy web --port 80 --target-port 80 --type LoadBalancer
+k expose deploy web --port 80 --target-port 80 --type ClusterIP
 
-# look for external IP
+# got fixed IP representing pods in deployment: CLUSTER-IP 10.152.183.172
+k get svc web
+# NAME   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+# web    ClusterIP   10.152.183.172   <none>        80/TCP    2s
+
+# this IP is >usually< not accessible outside of the cluster (therefore called ClusterIP)
+curl -vvv "http://$(k get svc/web -o json | jq -r '.spec.clusterIP')"
+
+# but enough inside the cluster
+k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://$WEBCIP
+# and it even has DNS name
+k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://web.default.svc.cluster.local
+k run -it --rm --restart=Never --image=nginx client --  curl -vvv web.default.svc.cluster.local 2>&1 | grep 'Connected to'
+
+# lets expose service on Node port - PORT(S) 30587 -> 80/TCP
+kubectl patch svc web -p '{"spec": {"type": "NodePort"}}'
+# we have hot NodePort now
+k get svc web
+# NAME   TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+# web    NodePort   10.152.183.172   <none>        80:30587/TCP   26s
+
+# connect to node's high port representing svc/web
+k get nodes -o json | jq -r '.items[0].status.addresses[0].address' # node IP
+k get svc web -o json | jq -r '.spec.ports[0].nodePort' # high port of svc/web
+echo curl -vvv "http://$(k get nodes -o json | jq -r '.items[0].status.addresses[0].address'):$(k get svc web -o json | jq -r '.spec.ports[0].nodePort')"
+curl -vvv "http://$(k get nodes -o json | jq -r '.items[0].status.addresses[0].address'):$(k get svc web -o json | jq -r '.spec.ports[0].nodePort')"
+
+# lets expose service on LoadBalancer (MetalLB IP address)
+kubectl patch svc web -p '{"spec": {"type": "LoadBalancer"}}'
+
+# look for external IP: 172.18.160.128
 k get svc web
 
-# 
 # NAME   TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)        AGE
-# web    LoadBalancer   10.152.183.181   172.18.160.128   80:32625/TCP   2s
+# web    LoadBalancer   10.152.183.172   172.18.160.128   80:30587/TCP   16m
 
 WEBIP=$(k get svc web -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "Access http://$WEBIP on host machine browser"
