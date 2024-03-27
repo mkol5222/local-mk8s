@@ -84,7 +84,7 @@ resolvectl
 
 ```
 
-### Multipass data location
+## Multipass data location
 
 You might have limited space on your system drive. You can move Multipass data to another drive.
 https://multipass.run/docs/configure-multipass-storage#heading--windows
@@ -106,7 +106,7 @@ Get-ChildItem -Path $multipassStorage -Recurse -Filter id_rsa | ? FullName
 $sshkey = Get-ChildItem -Path $multipassStorage -Recurse -Filter id_rsa | % FullName
 ```
 
-### Multipass SSH key location
+## Multipass SSH key location
 
 ```shell
 # get location of SSH key above
@@ -115,7 +115,7 @@ $sshkey="D:\ProgramData\Multipass\data\ssh-keys\id_rsa"
 ssh -i $sshkey ubuntu@testvm.mshome.net
 ```
 
-### Multipass - service restart
+## Multipass - service restart
 
 Requires admin Powershell session.
 
