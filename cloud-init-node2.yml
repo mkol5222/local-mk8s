@@ -21,7 +21,7 @@ runcmd:
    snap install microk8s --classic
    microk8s start
    microk8s status -w
-   microk8s join 10.38.0.102:25000/d545393c597dc390d12631836fd074464b5638bdfa3c95983a845ce604b703fe --worker
+   microk8s join 10.38.0.101:25000/d545393c597dc390d12631836fd074464b5638bdfa3c95983a845ce604b703fe --worker
    # microk8s enable dns ingress cert-manager
    # install Arkade package manager
    # When running as a startup script (cloud-init), the HOME variable is not always set.
