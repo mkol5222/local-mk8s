@@ -451,52 +451,6 @@ k logs -f -n cert-manager deploy/cert-manager
 k logs -f -n external-dns deploy/external-dns
 ```
 
-### Second cluster node
-
-```shell
-# add one more VM
-multipass launch -v -n node2 --cloud-init cloud-init.yml -m 4G -d 10G -c 4
-# login and wait for microk8s to be ready
-multipass shell node2
-sudo microk8s status -w
-
-# other console - login to node1
-multipass shell node1
-# get command for node2 on node1 console
-sudo microk8s add-node
-# something like: microk8s join 172.18.161.168:25000/6d082e36ca9959d58ca759f2d55f26be/804826265516 --worker
-
-# back to node2
-multipass shell node2
-# see abobe!!!
-sudo microk8s join 172.18.161.168:25000/6d082e36ca9959d58ca759f2d55f26be/804826265516 --worker
-
-# back to node1
-multipass shell node1
-k get nodes -o wide --watch
-# expect: node1 and node2 ready
-# NAME    STATUS   ROLES    AGE    VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
-# node1   Ready    <none>   138m   v1.28.7   172.18.161.168   <none>        Ubuntu 22.04.4 LTS   5.15.0-101-generic   containerd://1.6.28
-# node2   Ready    <none>   32s    v1.28.7   172.18.172.162   <none>        Ubuntu 22.04.4 LTS   5.15.0-101-generic   containerd://1.6.28
-
-# how are pods distributed?
-k get pods -o wide -A
-# node2 pods
-k get pods -o wide -A | grep node2
-
-# redistribute web pods
-k scale deploy web --replicas=1
-# new will choose according resources available
-k scale deploy web --replicas=5
-# check distribution
-k get pods -l app=web -o wide
-
-# MetalLB owner VIP for Ingress - still same
-k get svc -n ingress
-# pointed to by DNS
-export MYID=mko # use your own!
-dig +short @1.1.1.1 www-${MYID}.cloudguard.rocks
-```
 
 ### CoreDNS custom forwarders
 https://devops.cisel.ch/customizing-coredns-forwarders-on-kubernetes

@@ -23,6 +23,8 @@ runcmd:
    microk8s status  
    microk8s enable dns ingress cert-manager
    microk8s enable metallb:10.38.0.201-10.38.0.250
+   microk8s add-node -t d545393c597dc390d12631836fd074464b5638bdfa3c95983a845ce604b703fe
+   
    # install Arkade package manager
    # When running as a startup script (cloud-init), the HOME variable is not always set.
    # As it is required for arkade to properly download tools, 
@@ -31,7 +33,7 @@ runcmd:
      export HOME=/usr/local
    fi
    curl -sLS https://get.arkade.dev | sh
-   microk8s add-node -t d545393c597dc390d12631836fd074464b5638bdfa3c95983a845ce604b703fe
+   
   
 
         
