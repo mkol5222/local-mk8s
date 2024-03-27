@@ -34,7 +34,7 @@ k get nodes -o wide
 k get pods -o wide -A
 
 # MetalLB setup - external IP used to reach web apps (svc type LoadBalancer external IP)
-microk8s enable metallb:172.18.160.128-172.18.160.199
+microk8s enable metallb:172.19.144.100-172.19.144.160
 # existing machines and their IPs
 multipass ls
 
@@ -47,7 +47,6 @@ k get pods -l app=web -o wide
 
 ![k create deploy](./img/k-create-deploy.png)
 
-
 ```shell
 # expose it externally on IP provided by MetalLB
 k expose deploy web --port 80 --target-port 80 --type ClusterIP
@@ -59,12 +58,12 @@ k get svc web
 
 # this IP is >usually< not accessible outside of the cluster (therefore called ClusterIP)
 curl -vvv "http://$(k get svc/web -o json | jq -r '.spec.clusterIP')"
-
+WEBCIP=$(kubectl get svc/web -o json | jq -r '.spec.clusterIP')
 # but enough inside the cluster
 k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://$WEBCIP
 # and it even has DNS name
-k run -it --rm --restart=Never --image=nginx client --  curl -vvv http://web.default.svc.cluster.local
-k run -it --rm --restart=Never --image=nginx client --  curl -vvv web.default.svc.cluster.local 2>&1 | grep 'Connected to'
+k run -it --rm --restart=Never --image=nginx client2 --  curl -vvv http://web.default.svc.cluster.local
+k run -it --rm --restart=Never --image=nginx client3 --  curl -vvv web.default.svc.cluster.local 2>&1 | grep 'Connected to'
 ```
 
 ![type=ClusterIP](./img/clusterip.png)
