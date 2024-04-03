@@ -100,10 +100,12 @@ ping node2.mshome.net
 Start-Process pwsh -verb runas
 gci -rec d:/multipass | % FullName | sls ssh
 gc D:/multipass/data/ssh-keys/id_rsa
+# which is
+ls $env:MULTIPASS_STORAGE/data/ssh-keys/id_rsa
 ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@node1.mshome.net
 ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@172.25.197.28
-ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@10.38.0.101 # node1
-ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@10.38.0.102 # node2
+ssh -i $env:MULTIPASS_STORAGE/data/ssh-keys/id_rsa ubuntu@10.38.0.101 # node1
+ssh -i $env:MULTIPASS_STORAGE/data/ssh-keys/id_rsa ubuntu@10.38.0.102 # node2
 
 # multipassD debug
 Stop-Service multipassd
