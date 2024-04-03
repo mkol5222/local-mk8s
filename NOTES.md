@@ -8,6 +8,10 @@ We are using [Multipass](https://multipass.run/) to launch Ubuntu LTS VMs on Win
 
 * Diskspace - VMs will take some space, make sure you have enough; often default C: drive is not the best choice. [doc](https://multipass.run/docs/configure-multipass-storage#heading--windows)
 
+### Lab VMs
+
+![VM IPs](./img/vms.png)
+
 ```shell
 # powershell
 
@@ -18,7 +22,10 @@ Get-Volume
 Get-ItemPropertyValue -Path "HKLM:System\CurrentControlSet\Control\Session Manager\Environment" -Name MULTIPASS_STORAGE
 
 # to change default drive for multipass
-# admin powershell
+# admin powershell (windows is missing sudo; MS launching it for Win 11)
+Start-Process pwsh -verb runas
+Start-Process powershell -verb runas
+
 mkdir d:/multipass
 
 # reference doc https://multipass.run/docs/configure-multipass-storage#heading--windows
@@ -66,15 +73,45 @@ Get-NetIPAddress -InterfaceAlias "vEthernet (multipass)" | Select-Object IPAddre
 ```shell
 # create VM - review RAM and disk size
 multipass launch -v -n node1 --cloud-init cloud-init-node1.yml -m 6G -d 20G -c 4 --network name=multipass,mode=manual,mac=52:54:00:f1:94:fa
+# some checks 
+multipass exec node1 -- sudo tail -f /var/log/cloud-init-output.log # did cloud-init work well?
+multipass exec node1 -- microk8s.kubectl get po -A --watch # monitors pods in all ns
+multipass exec node1 -- microk8s status -w # will wait in case cluster is not ready
+
 # enter VM command line
 multipass shell node1
 
 # check if we have static IP address
-ip a
-# nodes
+ip a show dev eth1
+# nodes - looking for soon to joining node2?
 k get no -o wide --watch
 
 # create second node - ONCE node1 is ready
+# BACK IN WINDOWS POWERSHELL
+
+# IPs and names for VMs
+gc C:\WINDOWS\System32\drivers\etc\hosts.ics | sls node
+# 172.25.197.28 node1.mshome.net # 2024 4 3 10 10 37 52 955
+# 172.25.197.213 node2.mshome.net # 2024 4 3 10 10 44 6 904
+ping node1.mshome.net
+ping node2.mshome.net
+
+# SSH keys for multipass - admin pwsh
+Start-Process pwsh -verb runas
+gci -rec d:/multipass | % FullName | sls ssh
+gc D:/multipass/data/ssh-keys/id_rsa
+ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@node1.mshome.net
+ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@172.25.197.28
+ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@10.38.0.101 # node1
+ssh -i D:/multipass/data/ssh-keys/id_rsa ubuntu@10.38.0.102 # node2
+
+# multipassD debug
+Stop-Service multipassd
+# and then
+ multipassd.exe -V trace --logger stderr
+
+# create second node - ONCE node1 is ready
+
 multipass launch -v -n node2 --cloud-init cloud-init-node2.yml -m 4G -d 20G -c 4 --network name=multipass,mode=manual,mac=52:54:00:f1:94:fb
 # enter VM command line
 multipass shell node2
