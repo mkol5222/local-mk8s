@@ -138,7 +138,13 @@ k get pods -o wide -A
 
 # make web server with 3 replicas
 k create deploy web --image nginx --replicas 3
-k get pods -l app=web -o wide
+k get pods -l app=web -o wide # by deployment's label app=web
+k get pods -l app=web -o wide --show-labels # include labels
+k get pods -l app=web -o wide --show-labels -A # all namespaces
+k get pods -l app=web -o wide --watch # wait for changes
+
+# node2 pods?
+k get po -A -o wide | grep node2
 ```
 
 ![k create deploy](./img/k-create-deploy.png)
@@ -167,6 +173,8 @@ k run -it --rm --restart=Never --image=nginx client3 --  curl -vvv web.default.s
 ```shell
 # lets expose service on Node port - PORT(S) 30587 -> 80/TCP
 kubectl patch svc web -p '{"spec": {"type": "NodePort"}}'
+# there is also interactive EDIT option
+kubectl edit svc web
 # we have hot NodePort now
 k get svc web
 # NAME   TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
@@ -324,7 +332,7 @@ k get all -n external-dns
 k get svc web
 
 # unique id - e.g. mko for Martin Koldovsky to assure uniqueness of resources like DNS records
-export MYID=mko # use your own!
+export MYID=mkopl # use your own!
 
 # DNS record is created based on service or ingress annotations
 k annotate service web "external-dns.alpha.kubernetes.io/hostname=web-${MYID}.cloudguard.rocks."
